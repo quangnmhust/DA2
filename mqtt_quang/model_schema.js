@@ -6,22 +6,22 @@ const modelSchema = new mongoose.Schema({
         default: Date.now(),
     },
     Time_real_Date:{
-        type:String,
+        type:Number,
         default: 0,
-    },
-    humidity:{
-        type: Number,
-        default: 0
     },
     temperature:{
         type: Number,
         default: 0
     },
-    CO2:{
+    humidity:{
         type: Number,
         default: 0
     },
-    CO:{
+    PM2_5:{
+        type: Number,
+        default: 0
+    },
+    PM10:{
         type: Number,
         default: 0
     },
