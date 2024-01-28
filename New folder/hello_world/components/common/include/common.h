@@ -14,7 +14,12 @@
 
 typedef struct
 {
-	uint64_t timeStamp;
+	int time_year;
+	int time_month;
+	int time_day;
+	int time_hour;
+	int time_min;
+	int time_sec;
 
 	float temp;
 	float humi;

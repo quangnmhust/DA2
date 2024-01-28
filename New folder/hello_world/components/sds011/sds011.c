@@ -266,7 +266,6 @@ sds011_err sds011_recv_cmd_from_queue(struct sds011_rx_packet* data_out,
 sds011_err sds011_send_cmd_to_queue(const struct sds011_tx_packet* data,
                                     TickType_t ticks_to_wait) {
   if (xQueueSend(sds011_tx_queue, (void*)data, ticks_to_wait) == pdTRUE) {
-	  printf("Sleep!!\n");
     return SDS011_OK;
   }
 

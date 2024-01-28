@@ -696,6 +696,13 @@ D:/Espressif/frameworks/hello_world/build/esp-idf/i2cdev/CMakeFiles/list_install
 D:/Espressif/frameworks/hello_world/build/esp-idf/i2cdev/CMakeFiles/install.dir
 D:/Espressif/frameworks/hello_world/build/esp-idf/i2cdev/CMakeFiles/install/local.dir
 D:/Espressif/frameworks/hello_world/build/esp-idf/i2cdev/CMakeFiles/install/strip.dir
+D:/Espressif/frameworks/hello_world/build/esp-idf/ds3231/CMakeFiles/__idf_ds3231.dir
+D:/Espressif/frameworks/hello_world/build/esp-idf/ds3231/CMakeFiles/edit_cache.dir
+D:/Espressif/frameworks/hello_world/build/esp-idf/ds3231/CMakeFiles/rebuild_cache.dir
+D:/Espressif/frameworks/hello_world/build/esp-idf/ds3231/CMakeFiles/list_install_components.dir
+D:/Espressif/frameworks/hello_world/build/esp-idf/ds3231/CMakeFiles/install.dir
+D:/Espressif/frameworks/hello_world/build/esp-idf/ds3231/CMakeFiles/install/local.dir
+D:/Espressif/frameworks/hello_world/build/esp-idf/ds3231/CMakeFiles/install/strip.dir
 D:/Espressif/frameworks/hello_world/build/esp-idf/sds011/CMakeFiles/__idf_sds011.dir
 D:/Espressif/frameworks/hello_world/build/esp-idf/sds011/CMakeFiles/edit_cache.dir
 D:/Espressif/frameworks/hello_world/build/esp-idf/sds011/CMakeFiles/rebuild_cache.dir

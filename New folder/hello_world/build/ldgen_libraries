@@ -72,6 +72,7 @@ D:/Espressif/frameworks/hello_world/build/esp-idf/wifi_provisioning/libwifi_prov
 D:/Espressif/frameworks/hello_world/build/esp-idf/main/libmain.a
 D:/Espressif/frameworks/hello_world/build/esp-idf/common/libcommon.a
 D:/Espressif/frameworks/hello_world/build/esp-idf/i2cdev/libi2cdev.a
+D:/Espressif/frameworks/hello_world/build/esp-idf/ds3231/libds3231.a
 D:/Espressif/frameworks/hello_world/build/esp-idf/sds011/libsds011.a
 D:/Espressif/frameworks/hello_world/build/esp-idf/sht3x/libsht3x.a
 D:/Espressif/frameworks/hello_world/build/esp-idf/sht4x/libsht4x.a
