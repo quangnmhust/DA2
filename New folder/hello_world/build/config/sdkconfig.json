@@ -745,6 +745,8 @@
     "UNITY_ENABLE_FIXTURE": false,
     "UNITY_ENABLE_FLOAT": true,
     "UNITY_ENABLE_IDF_TEST_RUNNER": true,
+    "USING_SHT31": true,
+    "USING_SHT41": false,
     "VFS_SEMIHOSTFS_MAX_MOUNT_POINTS": 1,
     "VFS_SUPPORT_DIR": true,
     "VFS_SUPPORT_IO": true,

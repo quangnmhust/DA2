@@ -172,7 +172,7 @@ build rebuild_cache: phony CMakeFiles/rebuild_cache.util
 # Custom command for CMakeFiles\menuconfig
 
 build CMakeFiles/menuconfig | ${cmake_ninja_workdir}CMakeFiles/menuconfig: CUSTOM_COMMAND
-  COMMAND = cmd.exe /C "cd /D D:\Espressif\frameworks\hello_world\build\bootloader && python D:/Espressif/frameworks/esp-idf-v4.4.4/tools/kconfig_new/prepare_kconfig_files.py --env-file D:/Espressif/frameworks/hello_world/build/bootloader/config.env && python D:/Espressif/frameworks/esp-idf-v4.4.4/tools/kconfig_new/confgen.py --kconfig D:/Espressif/frameworks/esp-idf-v4.4.4/Kconfig --sdkconfig-rename D:/Espressif/frameworks/esp-idf-v4.4.4/sdkconfig.rename --config D:/Espressif/frameworks/hello_world/sdkconfig --env-file D:/Espressif/frameworks/hello_world/build/bootloader/config.env --env IDF_TARGET=esp32 --env IDF_ENV_FPGA= --dont-write-deprecated --output config D:/Espressif/frameworks/hello_world/sdkconfig && python D:/Espressif/frameworks/esp-idf-v4.4.4/tools/check_term.py && D:\Espressif\tools\cmake\3.23.1\bin\cmake.exe -E env COMPONENT_KCONFIGS_SOURCE_FILE=D:/Espressif/frameworks/hello_world/build/bootloader/kconfigs.in COMPONENT_KCONFIGS_PROJBUILD_SOURCE_FILE=D:/Espressif/frameworks/hello_world/build/bootloader/kconfigs_projbuild.in IDF_CMAKE=y KCONFIG_CONFIG=D:/Espressif/frameworks/hello_world/sdkconfig IDF_TARGET=esp32 IDF_ENV_FPGA= python -m menuconfig D:/Espressif/frameworks/esp-idf-v4.4.4/Kconfig && python D:/Espressif/frameworks/esp-idf-v4.4.4/tools/kconfig_new/confgen.py --kconfig D:/Espressif/frameworks/esp-idf-v4.4.4/Kconfig --sdkconfig-rename D:/Espressif/frameworks/esp-idf-v4.4.4/sdkconfig.rename --config D:/Espressif/frameworks/hello_world/sdkconfig --env-file D:/Espressif/frameworks/hello_world/build/bootloader/config.env --env IDF_TARGET=esp32 --env IDF_ENV_FPGA= --output config D:/Espressif/frameworks/hello_world/sdkconfig"
+  COMMAND = cmd.exe /C "cd /D D:\Espressif\frameworks\hello_world\build\bootloader && D:\Espressif\python_env\idf4.4_py3.8_env\Scripts\python.exe D:/Espressif/frameworks/esp-idf-v4.4.4/tools/kconfig_new/prepare_kconfig_files.py --env-file D:/Espressif/frameworks/hello_world/build/bootloader/config.env && D:\Espressif\python_env\idf4.4_py3.8_env\Scripts\python.exe D:/Espressif/frameworks/esp-idf-v4.4.4/tools/kconfig_new/confgen.py --kconfig D:/Espressif/frameworks/esp-idf-v4.4.4/Kconfig --sdkconfig-rename D:/Espressif/frameworks/esp-idf-v4.4.4/sdkconfig.rename --config D:/Espressif/frameworks/hello_world/sdkconfig --env-file D:/Espressif/frameworks/hello_world/build/bootloader/config.env --env IDF_TARGET=esp32 --env IDF_ENV_FPGA= --dont-write-deprecated --output config D:/Espressif/frameworks/hello_world/sdkconfig && D:\Espressif\python_env\idf4.4_py3.8_env\Scripts\python.exe D:/Espressif/frameworks/esp-idf-v4.4.4/tools/check_term.py && D:\Espressif\tools\cmake\3.23.1\bin\cmake.exe -E env COMPONENT_KCONFIGS_SOURCE_FILE=D:/Espressif/frameworks/hello_world/build/bootloader/kconfigs.in COMPONENT_KCONFIGS_PROJBUILD_SOURCE_FILE=D:/Espressif/frameworks/hello_world/build/bootloader/kconfigs_projbuild.in IDF_CMAKE=y KCONFIG_CONFIG=D:/Espressif/frameworks/hello_world/sdkconfig IDF_TARGET=esp32 IDF_ENV_FPGA= D:/Espressif/python_env/idf4.4_py3.8_env/Scripts/python.exe -m menuconfig D:/Espressif/frameworks/esp-idf-v4.4.4/Kconfig && D:\Espressif\python_env\idf4.4_py3.8_env\Scripts\python.exe D:/Espressif/frameworks/esp-idf-v4.4.4/tools/kconfig_new/confgen.py --kconfig D:/Espressif/frameworks/esp-idf-v4.4.4/Kconfig --sdkconfig-rename D:/Espressif/frameworks/esp-idf-v4.4.4/sdkconfig.rename --config D:/Espressif/frameworks/hello_world/sdkconfig --env-file D:/Espressif/frameworks/hello_world/build/bootloader/config.env --env IDF_TARGET=esp32 --env IDF_ENV_FPGA= --output config D:/Espressif/frameworks/hello_world/sdkconfig"
   pool = console
 
 
@@ -180,7 +180,7 @@ build CMakeFiles/menuconfig | ${cmake_ninja_workdir}CMakeFiles/menuconfig: CUSTO
 # Custom command for CMakeFiles\confserver
 
 build CMakeFiles/confserver | ${cmake_ninja_workdir}CMakeFiles/confserver: CUSTOM_COMMAND
-  COMMAND = cmd.exe /C "cd /D D:\Espressif\frameworks\hello_world\build\bootloader && python D:/Espressif/frameworks/esp-idf-v4.4.4/tools/kconfig_new/prepare_kconfig_files.py --env-file D:/Espressif/frameworks/hello_world/build/bootloader/config.env && python D:/Espressif/frameworks/esp-idf-v4.4.4/tools/kconfig_new/confserver.py --env-file D:/Espressif/frameworks/hello_world/build/bootloader/config.env --kconfig D:/Espressif/frameworks/esp-idf-v4.4.4/Kconfig --sdkconfig-rename D:/Espressif/frameworks/esp-idf-v4.4.4/sdkconfig.rename --config D:/Espressif/frameworks/hello_world/sdkconfig"
+  COMMAND = cmd.exe /C "cd /D D:\Espressif\frameworks\hello_world\build\bootloader && D:\Espressif\python_env\idf4.4_py3.8_env\Scripts\python.exe D:/Espressif/frameworks/esp-idf-v4.4.4/tools/kconfig_new/prepare_kconfig_files.py --env-file D:/Espressif/frameworks/hello_world/build/bootloader/config.env && D:\Espressif\python_env\idf4.4_py3.8_env\Scripts\python.exe D:/Espressif/frameworks/esp-idf-v4.4.4/tools/kconfig_new/confserver.py --env-file D:/Espressif/frameworks/hello_world/build/bootloader/config.env --kconfig D:/Espressif/frameworks/esp-idf-v4.4.4/Kconfig --sdkconfig-rename D:/Espressif/frameworks/esp-idf-v4.4.4/sdkconfig.rename --config D:/Espressif/frameworks/hello_world/sdkconfig"
   pool = console
 
 
@@ -194,7 +194,7 @@ build CMakeFiles/gen_project_binary | ${cmake_ninja_workdir}CMakeFiles/gen_proje
 # Custom command for .bin_timestamp
 
 build .bin_timestamp | ${cmake_ninja_workdir}.bin_timestamp: CUSTOM_COMMAND bootloader.elf || _project_elf_src bootloader.elf esp-idf/bootloader_support/libbootloader_support.a esp-idf/efuse/libefuse.a esp-idf/esp_common/libesp_common.a esp-idf/esp_hw_support/libesp_hw_support.a esp-idf/esp_rom/libesp_rom.a esp-idf/esp_system/libesp_system.a esp-idf/hal/libhal.a esp-idf/log/liblog.a esp-idf/main/libmain.a esp-idf/micro-ecc/libmicro-ecc.a esp-idf/soc/libsoc.a esp-idf/spi_flash/libspi_flash.a esp-idf/xtensa/libxtensa.a
-  COMMAND = cmd.exe /C "cd /D D:\Espressif\frameworks\hello_world\build\bootloader && python D:/Espressif/frameworks/esp-idf-v4.4.4/components/esptool_py/esptool/esptool.py --chip esp32 elf2image --flash_mode dio --flash_freq 40m --flash_size 4MB -o D:/Espressif/frameworks/hello_world/build/bootloader/bootloader.bin D:/Espressif/frameworks/hello_world/build/bootloader/bootloader.elf && D:\Espressif\tools\cmake\3.23.1\bin\cmake.exe -E echo "Generated D:/Espressif/frameworks/hello_world/build/bootloader/bootloader.bin" && D:\Espressif\tools\cmake\3.23.1\bin\cmake.exe -E md5sum D:/Espressif/frameworks/hello_world/build/bootloader/bootloader.bin > D:/Espressif/frameworks/hello_world/build/bootloader/.bin_timestamp"
+  COMMAND = cmd.exe /C "cd /D D:\Espressif\frameworks\hello_world\build\bootloader && D:\Espressif\python_env\idf4.4_py3.8_env\Scripts\python.exe D:/Espressif/frameworks/esp-idf-v4.4.4/components/esptool_py/esptool/esptool.py --chip esp32 elf2image --flash_mode dio --flash_freq 40m --flash_size 4MB -o D:/Espressif/frameworks/hello_world/build/bootloader/bootloader.bin D:/Espressif/frameworks/hello_world/build/bootloader/bootloader.elf && D:\Espressif\tools\cmake\3.23.1\bin\cmake.exe -E echo "Generated D:/Espressif/frameworks/hello_world/build/bootloader/bootloader.bin" && D:\Espressif\tools\cmake\3.23.1\bin\cmake.exe -E md5sum D:/Espressif/frameworks/hello_world/build/bootloader/bootloader.bin > D:/Espressif/frameworks/hello_world/build/bootloader/.bin_timestamp"
   DESC = Generating binary image from built executable
   restat = 1
 
@@ -209,7 +209,7 @@ build CMakeFiles/app | ${cmake_ninja_workdir}CMakeFiles/app: phony || _project_e
 # Custom command for CMakeFiles\erase_flash
 
 build CMakeFiles/erase_flash | ${cmake_ninja_workdir}CMakeFiles/erase_flash: CUSTOM_COMMAND
-  COMMAND = cmd.exe /C "cd /D D:\Espressif\frameworks\esp-idf-v4.4.4\components\esptool_py && D:\Espressif\tools\cmake\3.23.1\bin\cmake.exe -D IDF_PATH="D:/Espressif/frameworks/esp-idf-v4.4.4" -D SERIAL_TOOL="python D:/Espressif/frameworks/esp-idf-v4.4.4/components/esptool_py/esptool/esptool.py --chip esp32" -D SERIAL_TOOL_ARGS="erase_flash" -P run_serial_tool.cmake"
+  COMMAND = cmd.exe /C "cd /D D:\Espressif\frameworks\esp-idf-v4.4.4\components\esptool_py && D:\Espressif\tools\cmake\3.23.1\bin\cmake.exe -D IDF_PATH="D:/Espressif/frameworks/esp-idf-v4.4.4" -D SERIAL_TOOL="D:/Espressif/python_env/idf4.4_py3.8_env/Scripts/python.exe D:/Espressif/frameworks/esp-idf-v4.4.4/components/esptool_py/esptool/esptool.py --chip esp32" -D SERIAL_TOOL_ARGS="erase_flash" -P run_serial_tool.cmake"
   pool = console
 
 
@@ -217,7 +217,7 @@ build CMakeFiles/erase_flash | ${cmake_ninja_workdir}CMakeFiles/erase_flash: CUS
 # Custom command for CMakeFiles\monitor
 
 build CMakeFiles/monitor | ${cmake_ninja_workdir}CMakeFiles/monitor: CUSTOM_COMMAND
-  COMMAND = cmd.exe /C "cd /D D:\Espressif\frameworks\esp-idf-v4.4.4\components\esptool_py && D:\Espressif\tools\cmake\3.23.1\bin\cmake.exe -D IDF_PATH="D:/Espressif/frameworks/esp-idf-v4.4.4" -D SERIAL_TOOL="python D:/Espressif/frameworks/esp-idf-v4.4.4/tools/idf_monitor.py" -D SERIAL_TOOL_ARGS="--target esp32 D:/Espressif/frameworks/hello_world/build/bootloader/bootloader.elf" -D WORKING_DIRECTORY="D:/Espressif/frameworks/hello_world/build/bootloader" -P run_serial_tool.cmake"
+  COMMAND = cmd.exe /C "cd /D D:\Espressif\frameworks\esp-idf-v4.4.4\components\esptool_py && D:\Espressif\tools\cmake\3.23.1\bin\cmake.exe -D IDF_PATH="D:/Espressif/frameworks/esp-idf-v4.4.4" -D SERIAL_TOOL="D:/Espressif/python_env/idf4.4_py3.8_env/Scripts/python.exe D:/Espressif/frameworks/esp-idf-v4.4.4/tools/idf_monitor.py" -D SERIAL_TOOL_ARGS="--target esp32 D:/Espressif/frameworks/hello_world/build/bootloader/bootloader.elf" -D WORKING_DIRECTORY="D:/Espressif/frameworks/hello_world/build/bootloader" -P run_serial_tool.cmake"
   pool = console
 
 
@@ -240,28 +240,28 @@ build project_elf_src_esp32.c | ${cmake_ninja_workdir}project_elf_src_esp32.c: C
 # Custom command for CMakeFiles\size
 
 build CMakeFiles/size | ${cmake_ninja_workdir}CMakeFiles/size: CUSTOM_COMMAND bootloader.map
-  COMMAND = cmd.exe /C "cd /D D:\Espressif\frameworks\hello_world\build\bootloader && python D:/Espressif/frameworks/esp-idf-v4.4.4/tools/idf_size.py D:/Espressif/frameworks/hello_world/build/bootloader/bootloader.map"
+  COMMAND = cmd.exe /C "cd /D D:\Espressif\frameworks\hello_world\build\bootloader && D:\Espressif\python_env\idf4.4_py3.8_env\Scripts\python.exe D:/Espressif/frameworks/esp-idf-v4.4.4/tools/idf_size.py D:/Espressif/frameworks/hello_world/build/bootloader/bootloader.map"
 
 
 #############################################
 # Custom command for CMakeFiles\size-files
 
 build CMakeFiles/size-files | ${cmake_ninja_workdir}CMakeFiles/size-files: CUSTOM_COMMAND bootloader.map
-  COMMAND = cmd.exe /C "cd /D D:\Espressif\frameworks\hello_world\build\bootloader && python D:/Espressif/frameworks/esp-idf-v4.4.4/tools/idf_size.py --files D:/Espressif/frameworks/hello_world/build/bootloader/bootloader.map"
+  COMMAND = cmd.exe /C "cd /D D:\Espressif\frameworks\hello_world\build\bootloader && D:\Espressif\python_env\idf4.4_py3.8_env\Scripts\python.exe D:/Espressif/frameworks/esp-idf-v4.4.4/tools/idf_size.py --files D:/Espressif/frameworks/hello_world/build/bootloader/bootloader.map"
 
 
 #############################################
 # Custom command for CMakeFiles\size-components
 
 build CMakeFiles/size-components | ${cmake_ninja_workdir}CMakeFiles/size-components: CUSTOM_COMMAND bootloader.map
-  COMMAND = cmd.exe /C "cd /D D:\Espressif\frameworks\hello_world\build\bootloader && python D:/Espressif/frameworks/esp-idf-v4.4.4/tools/idf_size.py --archives D:/Espressif/frameworks/hello_world/build/bootloader/bootloader.map"
+  COMMAND = cmd.exe /C "cd /D D:\Espressif\frameworks\hello_world\build\bootloader && D:\Espressif\python_env\idf4.4_py3.8_env\Scripts\python.exe D:/Espressif/frameworks/esp-idf-v4.4.4/tools/idf_size.py --archives D:/Espressif/frameworks/hello_world/build/bootloader/bootloader.map"
 
 
 #############################################
 # Custom command for CMakeFiles\uf2-app
 
 build CMakeFiles/uf2-app | ${cmake_ninja_workdir}CMakeFiles/uf2-app: CUSTOM_COMMAND || _project_elf_src bootloader.elf esp-idf/bootloader_support/libbootloader_support.a esp-idf/efuse/libefuse.a esp-idf/esp_common/libesp_common.a esp-idf/esp_hw_support/libesp_hw_support.a esp-idf/esp_rom/libesp_rom.a esp-idf/esp_system/libesp_system.a esp-idf/hal/libhal.a esp-idf/log/liblog.a esp-idf/main/libmain.a esp-idf/micro-ecc/libmicro-ecc.a esp-idf/soc/libsoc.a esp-idf/spi_flash/libspi_flash.a esp-idf/xtensa/libxtensa.a gen_project_binary
-  COMMAND = cmd.exe /C "cd /D D:\Espressif\frameworks\hello_world\build\bootloader && python D:/Espressif/frameworks/esp-idf-v4.4.4/tools/mkuf2.py write -o D:/Espressif/frameworks/hello_world/build/bootloader/uf2-app.bin --json D:/Espressif/frameworks/hello_world/build/bootloader/flasher_args.json --chip-id 0x1c5f21b0 --bin app"
+  COMMAND = cmd.exe /C "cd /D D:\Espressif\frameworks\hello_world\build\bootloader && D:\Espressif\python_env\idf4.4_py3.8_env\Scripts\python.exe D:/Espressif/frameworks/esp-idf-v4.4.4/tools/mkuf2.py write -o D:/Espressif/frameworks/hello_world/build/bootloader/uf2-app.bin --json D:/Espressif/frameworks/hello_world/build/bootloader/flasher_args.json --chip-id 0x1c5f21b0 --bin app"
   pool = console
 
 
@@ -269,7 +269,7 @@ build CMakeFiles/uf2-app | ${cmake_ninja_workdir}CMakeFiles/uf2-app: CUSTOM_COMM
 # Custom command for CMakeFiles\uf2
 
 build CMakeFiles/uf2 | ${cmake_ninja_workdir}CMakeFiles/uf2: CUSTOM_COMMAND bootloader || _project_elf_src bootloader.elf esp-idf/bootloader_support/libbootloader_support.a esp-idf/efuse/libefuse.a esp-idf/esp_common/libesp_common.a esp-idf/esp_hw_support/libesp_hw_support.a esp-idf/esp_rom/libesp_rom.a esp-idf/esp_system/libesp_system.a esp-idf/hal/libhal.a esp-idf/log/liblog.a esp-idf/main/libmain.a esp-idf/micro-ecc/libmicro-ecc.a esp-idf/soc/libsoc.a esp-idf/spi_flash/libspi_flash.a esp-idf/xtensa/libxtensa.a gen_project_binary
-  COMMAND = cmd.exe /C "cd /D D:\Espressif\frameworks\hello_world\build\bootloader && python D:/Espressif/frameworks/esp-idf-v4.4.4/tools/mkuf2.py write -o D:/Espressif/frameworks/hello_world/build/bootloader/uf2.bin --json D:/Espressif/frameworks/hello_world/build/bootloader/flasher_args.json --chip-id 0x1c5f21b0"
+  COMMAND = cmd.exe /C "cd /D D:\Espressif\frameworks\hello_world\build\bootloader && D:\Espressif\python_env\idf4.4_py3.8_env\Scripts\python.exe D:/Espressif/frameworks/esp-idf-v4.4.4/tools/mkuf2.py write -o D:/Espressif/frameworks/hello_world/build/bootloader/uf2.bin --json D:/Espressif/frameworks/hello_world/build/bootloader/flasher_args.json --chip-id 0x1c5f21b0"
   pool = console
 
 # =============================================================================
@@ -1258,7 +1258,7 @@ build esp-idf/efuse/rebuild_cache: phony esp-idf/efuse/CMakeFiles/rebuild_cache.
 # Custom command for esp-idf\efuse\CMakeFiles\efuse-common-table
 
 build esp-idf/efuse/CMakeFiles/efuse-common-table | ${cmake_ninja_workdir}esp-idf/efuse/CMakeFiles/efuse-common-table: CUSTOM_COMMAND
-  COMMAND = cmd.exe /C "cd /D D:\Espressif\frameworks\hello_world\build\bootloader\esp-idf\efuse && python D:/Espressif/frameworks/esp-idf-v4.4.4/components/efuse/efuse_table_gen.py D:/Espressif/frameworks/esp-idf-v4.4.4/components/efuse/esp32/esp_efuse_table.csv -t esp32 --max_blk_len 192"
+  COMMAND = cmd.exe /C "cd /D D:\Espressif\frameworks\hello_world\build\bootloader\esp-idf\efuse && D:\Espressif\python_env\idf4.4_py3.8_env\Scripts\python.exe D:/Espressif/frameworks/esp-idf-v4.4.4/components/efuse/efuse_table_gen.py D:/Espressif/frameworks/esp-idf-v4.4.4/components/efuse/esp32/esp_efuse_table.csv -t esp32 --max_blk_len 192"
 
 
 #############################################
@@ -1279,7 +1279,7 @@ build esp-idf/efuse/CMakeFiles/efuse_custom_table | ${cmake_ninja_workdir}esp-id
 # Custom command for esp-idf\efuse\CMakeFiles\show-efuse-table
 
 build esp-idf/efuse/CMakeFiles/show-efuse-table | ${cmake_ninja_workdir}esp-idf/efuse/CMakeFiles/show-efuse-table: CUSTOM_COMMAND
-  COMMAND = cmd.exe /C "cd /D D:\Espressif\frameworks\hello_world\build\bootloader\esp-idf\efuse && python D:/Espressif/frameworks/esp-idf-v4.4.4/components/efuse/efuse_table_gen.py D:/Espressif/frameworks/esp-idf-v4.4.4/components/efuse/esp32/esp_efuse_table.csv -t esp32 --max_blk_len 192 --info"
+  COMMAND = cmd.exe /C "cd /D D:\Espressif\frameworks\hello_world\build\bootloader\esp-idf\efuse && D:\Espressif\python_env\idf4.4_py3.8_env\Scripts\python.exe D:/Espressif/frameworks/esp-idf-v4.4.4/components/efuse/efuse_table_gen.py D:/Espressif/frameworks/esp-idf-v4.4.4/components/efuse/esp32/esp_efuse_table.csv -t esp32 --max_blk_len 192 --info"
 
 
 #############################################
@@ -1293,7 +1293,7 @@ build esp-idf/efuse/CMakeFiles/show_efuse_table | ${cmake_ninja_workdir}esp-idf/
 # Custom command for esp-idf\efuse\CMakeFiles\efuse_test_table
 
 build esp-idf/efuse/CMakeFiles/efuse_test_table | ${cmake_ninja_workdir}esp-idf/efuse/CMakeFiles/efuse_test_table: CUSTOM_COMMAND
-  COMMAND = cmd.exe /C "cd /D D:\Espressif\frameworks\hello_world\build\bootloader\esp-idf\efuse && python D:/Espressif/frameworks/esp-idf-v4.4.4/components/efuse/efuse_table_gen.py D:/Espressif/frameworks/esp-idf-v4.4.4/components/efuse/test/esp_efuse_test_table.csv -t esp32 --max_blk_len 192"
+  COMMAND = cmd.exe /C "cd /D D:\Espressif\frameworks\hello_world\build\bootloader\esp-idf\efuse && D:\Espressif\python_env\idf4.4_py3.8_env\Scripts\python.exe D:/Espressif/frameworks/esp-idf-v4.4.4/components/efuse/efuse_table_gen.py D:/Espressif/frameworks/esp-idf-v4.4.4/components/efuse/test/esp_efuse_test_table.csv -t esp32 --max_blk_len 192"
 
 # =============================================================================
 # Write statements declared in CMakeLists.txt:
@@ -1930,7 +1930,7 @@ build esp-idf/esptool_py/rebuild_cache: phony esp-idf/esptool_py/CMakeFiles/rebu
 # Custom command for esp-idf\esptool_py\CMakeFiles\bootloader_check_size
 
 build esp-idf/esptool_py/CMakeFiles/bootloader_check_size | ${cmake_ninja_workdir}esp-idf/esptool_py/CMakeFiles/bootloader_check_size: CUSTOM_COMMAND || _project_elf_src bootloader.elf esp-idf/bootloader_support/libbootloader_support.a esp-idf/efuse/libefuse.a esp-idf/esp_common/libesp_common.a esp-idf/esp_hw_support/libesp_hw_support.a esp-idf/esp_rom/libesp_rom.a esp-idf/esp_system/libesp_system.a esp-idf/hal/libhal.a esp-idf/log/liblog.a esp-idf/main/libmain.a esp-idf/micro-ecc/libmicro-ecc.a esp-idf/soc/libsoc.a esp-idf/spi_flash/libspi_flash.a esp-idf/xtensa/libxtensa.a gen_project_binary
-  COMMAND = cmd.exe /C "cd /D D:\Espressif\frameworks\hello_world\build\bootloader\esp-idf\esptool_py && python D:/Espressif/frameworks/esp-idf-v4.4.4/components/partition_table/check_sizes.py --offset 0x8000 bootloader 0x1000 D:/Espressif/frameworks/hello_world/build/bootloader/bootloader.bin"
+  COMMAND = cmd.exe /C "cd /D D:\Espressif\frameworks\hello_world\build\bootloader\esp-idf\esptool_py && D:\Espressif\python_env\idf4.4_py3.8_env\Scripts\python.exe D:/Espressif/frameworks/esp-idf-v4.4.4/components/partition_table/check_sizes.py --offset 0x8000 bootloader 0x1000 D:/Espressif/frameworks/hello_world/build/bootloader/bootloader.bin"
 
 # =============================================================================
 # Write statements declared in CMakeLists.txt:

@@ -2209,6 +2209,44 @@
                 "children": [
                     {
                         "children": [],
+                        "depends_on": "<choice SHT>",
+                        "help": "In this example it uses the high level function\nsht3x_measure() to perform one measurement in each cycle.",
+                        "id": "USING_SHT41",
+                        "name": "USING_SHT41",
+                        "range": null,
+                        "title": "SHT41",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": "<choice SHT>",
+                        "help": "In this example it starts the measurement, waits for the\nresults and fetches the results using separate functions",
+                        "id": "USING_SHT31",
+                        "name": "USING_SHT31",
+                        "range": null,
+                        "title": "SHT31",
+                        "type": "bool"
+                    }
+                ],
+                "depends_on": null,
+                "help": "Choose how to masure values from the sensor. See the main.c for\ndetails.",
+                "id": "sht-configuration-choose-sht",
+                "name": "SHT",
+                "title": "Choose sht",
+                "type": "choice"
+            }
+        ],
+        "depends_on": null,
+        "id": "sht-configuration",
+        "title": "SHT configuration",
+        "type": "menu"
+    },
+    {
+        "children": [
+            {
+                "children": [
+                    {
+                        "children": [],
                         "depends_on": "<choice COMPILER_OPTIMIZATION>",
                         "help": null,
                         "id": "COMPILER_OPTIMIZATION_DEFAULT",

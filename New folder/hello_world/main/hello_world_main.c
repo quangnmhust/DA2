@@ -28,12 +28,13 @@
 #include "common.h"
 #include "i2cdev.h"
 #include <sht4x.h>
+#include <sht3x.h>
 #include "sds011.h"
 #include "ds3231.h"
 
-#define PERIOD 1
-#define SDS_PERIOD 1
-#define SDS_SLEEP 15
+#define PRINTF_PERIOD 26000
+#define GET_DATA_PERIOD 25000
+#define SENSOR_SLEEP_PERIOD 600000
 
 #define WIFI_TAG        "Esp_Wifi"
 #define TAG_MQTT        "Esp_MQTT"
@@ -56,9 +57,11 @@
 #define SCL_PIN 22
 
 TaskHandle_t test_sht41 = NULL;
+TaskHandle_t test_sht31 = NULL;
 TaskHandle_t test_ds3231 = NULL;
 TaskHandle_t test_sds011 = NULL;
-TaskHandle_t data_task = NULL;
+TaskHandle_t get_data_task = NULL;
+TaskHandle_t control_task = NULL;
 TaskHandle_t send_data_mqtt_task = NULL;
 
 
@@ -73,7 +76,8 @@ static EventGroupHandle_t mqtt_event_group;
 esp_mqtt_client_handle_t mqttClient_handle = NULL;
 
 uint8_t MAC_address[6];
-sht4x_t dev;
+//sht4x_t dev;
+sht3x_t dev;
 i2c_dev_t ds3231;
 
 struct tm init_time = {
@@ -118,7 +122,12 @@ static const struct sds011_tx_packet sds011_tx_wakeup_packet = {
 void send_data_mqtt(void *arg){
 	data_type MQTT_data;
 	while(1){
+
 		if(xEventGroupWaitBits(mqtt_event_group, MQTT_CONNECTED_BIT, pdFALSE, pdTRUE, portMAX_DELAY) && MQTT_CONNECTED_BIT){
+
+			TickType_t xLastWakeTime;
+			xLastWakeTime = xTaskGetTickCount();
+
 			if(uxQueueMessagesWaiting(data_mqtt_queue) != 0){
 				if (xQueueReceive(data_mqtt_queue, &MQTT_data, portMAX_DELAY) == pdPASS) {
 					ESP_LOGI(__func__, "MQTT data waiting to read %d, Available space %d", uxQueueMessagesWaiting(data_mqtt_queue), uxQueueSpacesAvailable(data_mqtt_queue));
@@ -155,9 +164,9 @@ void send_data_mqtt(void *arg){
 //					vTaskDelay(pdMS_TO_TICKS(60000));
 				}
 			}
-//			else {
-//				vTaskDelay(pdMS_TO_TICKS(3 * 60000));
-//			}
+			else {
+				vTaskDelayUntil(&xLastWakeTime, PRINTF_PERIOD/portTICK_RATE_MS);
+			}
 		}
 	}
 }
@@ -271,18 +280,23 @@ void wifi_connection()
     esp_wifi_connect();
 }
 
-void data_control_task(void *arg){
+void get_data_sensor_task(void *arg){
 	printf("data\n");
 	data_type temp = {};
-	data_type result = {};
+//	data_type result = {};
+
+	TickType_t xLastWakeTime;
+	xLastWakeTime = xTaskGetTickCount();
+
 	while(1){
-		vTaskDelay(pdMS_TO_TICKS(1000));
-		temp.time_year = data.time_year;
-		temp.time_month = data.time_month;
-		temp.time_day = data.time_day;
-		temp.time_hour = data.time_hour;
-		temp.time_min = data.time_min;
-		temp.time_sec = data.time_sec;
+		vTaskDelay(PRINTF_PERIOD/portTICK_RATE_MS);
+
+//		temp.time_year = data.time_year;
+//		temp.time_month = data.time_month;
+//		temp.time_day = data.time_day;
+//		temp.time_hour = data.time_hour;
+//		temp.time_min = data.time_min;
+//		temp.time_sec = data.time_sec;
 
 		temp.temp = data.temp;
 		temp.humi = data.humi;
@@ -291,30 +305,34 @@ void data_control_task(void *arg){
 
 		ESP_LOGI(__func__,"Data Sensor: %.2f °C, %.2f %%", temp.temp, temp.humi);
 
-		xQueueSendToBack(dataSensor_queue, (void *)&temp, 1000/portTICK_RATE_MS);
-		ESP_LOGI(__func__, "Data waiting to read %d, Available space %d", uxQueueMessagesWaiting(dataSensor_queue), uxQueueSpacesAvailable(dataSensor_queue));
-
-
-		if(xQueueReceive(dataSensor_queue, &result, 1000/portTICK_PERIOD_MS) == pdPASS){
+//		xQueueSendToBack(dataSensor_queue, (void *)&temp, 1000/portTICK_RATE_MS);
+//		ESP_LOGI(__func__, "Data waiting to read %d, Available space %d", uxQueueMessagesWaiting(dataSensor_queue), uxQueueSpacesAvailable(dataSensor_queue));
+//
+//
+//		if(xQueueReceive(dataSensor_queue, &result, 1000/portTICK_PERIOD_MS) == pdPASS){
 
 			/* lay data hien thi LCD */
 
-			xQueueSendToBack(data_mqtt_queue,&result, 1000/portMAX_DELAY);
+			xQueueSendToBack(data_mqtt_queue, (void *)&temp, 1000/portMAX_DELAY);
 			ESP_LOGI(__func__, "MQTT data waiting to read %d, Available space %d", uxQueueMessagesWaiting(data_mqtt_queue), uxQueueSpacesAvailable(data_mqtt_queue));
-			wifi_connection();
-			break;
-		}
+//		}
+			vTaskDelayUntil(&xLastWakeTime, SENSOR_SLEEP_PERIOD/portTICK_RATE_MS);
 	}
-	vTaskDelete(NULL);
 }
 
+#if defined(CONFIG_USING_SHT41)
 //sh41
 void sht41_task(void *pvParameters)
 {
 	printf("sht41\n");
+	TickType_t xLastWakeTime;
+	xLastWakeTime = xTaskGetTickCount();
 	while(1){
 		ESP_ERROR_CHECK(sht4x_init_desc(&dev, 0, SDA_PIN, SCL_PIN));
 		ESP_ERROR_CHECK(sht4x_init(&dev));
+
+		vTaskDelay(GET_DATA_PERIOD/portTICK_RATE_MS);
+
 		float temperature;
 		float humidity;
 		if (xSemaphoreTake(I2C_mutex, portMAX_DELAY) == pdTRUE)
@@ -329,39 +347,77 @@ void sht41_task(void *pvParameters)
 
 			ESP_ERROR_CHECK(sht4x_free_desc(&dev));
 			xSemaphoreGive(I2C_mutex);
-			break;
 		}
+		vTaskDelayUntil(&xLastWakeTime, SENSOR_SLEEP_PERIOD/portTICK_RATE_MS);
 	}
-	xTaskCreatePinnedToCore(data_control_task, "data_control_task", 2048 * 2, NULL, 2, &data_task, tskNO_AFFINITY);
-	vTaskDelete(NULL);
 }
+#elif defined(CONFIG_USING_SHT31)
+//sh31
+void sht31_task(void *pvParameters)
+{
+	printf("sht31\n");
+
+	TickType_t xLastWakeTime;
+	xLastWakeTime = xTaskGetTickCount();
+
+	while(1){
+		ESP_ERROR_CHECK(sht3x_init_desc(&dev, 0, SDA_PIN, SCL_PIN));
+		ESP_ERROR_CHECK(sht3x_init(&dev));
+
+		vTaskDelay(GET_DATA_PERIOD/portTICK_RATE_MS);
+
+		float temperature;
+		float humidity;
+		if (xSemaphoreTake(I2C_mutex, portMAX_DELAY) == pdTRUE)
+		{
+			ESP_LOGI(__func__, "SHT31 take semaphore");
+			ESP_ERROR_CHECK(sht3x_measure(&dev, &temperature, &humidity));
+			data.humi = humidity;
+			data.temp = temperature;
+			ESP_LOGI(__func__,"SHT3x Sensor: %.2f °C, %.2f %%", temperature, humidity);
+
+			ESP_LOGI(__func__, "SHT31 give semaphore");
+
+			ESP_ERROR_CHECK(sht3x_free_desc(&dev));
+			xSemaphoreGive(I2C_mutex);
+		}
+		vTaskDelayUntil(&xLastWakeTime, SENSOR_SLEEP_PERIOD/portTICK_RATE_MS);
+	}
+}
+#else
+#endif
 
 //ds3231
 void ds3231_task(void *arg){
 	printf("ds3231\n");
-	while (1){
-		ESP_ERROR_CHECK(ds3231_init_desc(&ds3231, 0, SDA_PIN, SCL_PIN));
+	TickType_t xLastWakeTime;
+	xLastWakeTime = xTaskGetTickCount();
+	while(1){
+//		ESP_ERROR_CHECK(ds3231_init_desc(&ds3231, 0, SDA_PIN, SCL_PIN));
+
+		vTaskDelay(GET_DATA_PERIOD/portTICK_RATE_MS);
+
 		if (xSemaphoreTake(I2C_mutex, portMAX_DELAY) == pdTRUE)
 		{
 			ESP_LOGI(__func__, "DS3231 take semaphore");
-			struct tm time;
-			ds3231_get_time(&ds3231, &time);
-			printf("%02d/%02d/%02d %02d:%02d:%02d\n", time.tm_year, time.tm_mon, time.tm_mday, time.tm_hour, time.tm_min, time.tm_sec);
-			data.time_year = time.tm_year;
-			data.time_month = time.tm_mon;
-			data.time_day = time.tm_mday;
-			data.time_hour = time.tm_hour;
-			data.time_min = time.tm_min;
-			data.time_sec = time.tm_sec;
-
+//			struct tm time;
+////			ds3231_get_time(&ds3231, &time);
+//			printf("%02d/%02d/%02d %02d:%02d:%02d\n", time.tm_year, time.tm_mon, time.tm_mday, time.tm_hour, time.tm_min, time.tm_sec);
+//			data.time_year = time.tm_year;
+//			data.time_month = time.tm_mon;
+//			data.time_day = time.tm_mday;
+//			data.time_hour = time.tm_hour;
+//			data.time_min = time.tm_min;
+//			data.time_sec = time.tm_sec;
+			ESP_LOGI(__func__, "24/00/28 22:12:55");
 			ESP_LOGI(__func__, "DS3231 give semaphore");
-			ESP_ERROR_CHECK(ds3231_free_desc(&ds3231));
+//			ESP_ERROR_CHECK(ds3231_free_desc(&ds3231));
 			xSemaphoreGive(I2C_mutex);
-			break;
+//			break;
 		}
+
+		vTaskDelayUntil(&xLastWakeTime, SENSOR_SLEEP_PERIOD/portTICK_RATE_MS);
 	}
-	xTaskCreatePinnedToCore(sht41_task, "sht41_task", 2048 * 2, NULL, 2, &test_sht41, tskNO_AFFINITY);
-	vTaskDelete(NULL);
 }
 
 //sds011
@@ -369,17 +425,22 @@ void sds011_task(void *pvParameters){
 	printf("sds\n");
 
 	struct sds011_rx_packet rx_packet;
+
+	TickType_t xLastWakeTime;
+	xLastWakeTime = xTaskGetTickCount();
+
 	while(1)
 	{
 		sds011_send_cmd_to_queue(&sds011_tx_wakeup_packet, 0);
-//		vTaskDelay(pdMS_TO_TICKS(SDS_PERIOD * 60000));
-		vTaskDelay(pdMS_TO_TICKS(60000));
+
+		vTaskDelay(GET_DATA_PERIOD/portTICK_RATE_MS);
 
 		/** Read the data (which is the latest when data queue size is 1). */
 		if (sds011_recv_data_from_queue(&rx_packet, 0) == SDS011_OK) {
 			ESP_LOGI(__func__, "SDS011 recv data");
 		  float pm2_5;
 		  float pm10;
+
 		  pm2_5 = ((rx_packet.payload_query_data.pm2_5_high << 8) |
 				   rx_packet.payload_query_data.pm2_5_low) /
 				  10.0;
@@ -395,46 +456,27 @@ void sds011_task(void *pvParameters){
 		  sds011_send_cmd_to_queue(&sds011_tx_sleep_packet, 0);
 		  ESP_LOGI(__func__, "SDS011 sleep");
 
-//		  xTaskCreatePinnedToCore(ds3231_task, "ds3231_task", 2048 * 2, NULL, 4, &test_ds3231, tskNO_AFFINITY);
-		  	//		vTaskDelete(NULL);
-		  vTaskDelay(pdMS_TO_TICKS(3 * 60000));
+		  vTaskDelayUntil(&xLastWakeTime, SENSOR_SLEEP_PERIOD/portTICK_RATE_MS);
 		}
 	}
 }
 
-
-
-
 void init_app(){
 	ESP_ERROR_CHECK( i2cdev_init());
+	#if defined(CONFIG_USING_SHT41)
+	//sh41
 	memset(&dev, 0, sizeof(sht4x_t));
+	#elif defined(CONFIG_USING_SHT31)
+	//sh31
+	memset(&dev, 0, sizeof(sht3x_t));
+	#else
+	#endif
 	memset(&ds3231, 0, sizeof(i2c_dev_t));
 	sds011_begin(SDS011_UART_PORT, SDS011_TX_GPIO, SDS011_RX_GPIO);
 }
 
 void app_main(void)
 {
-
-
-
-
-	/*------------------------------------------------------------------*/
-    /* Print chip information */
-    esp_chip_info_t chip_info;
-    esp_chip_info(&chip_info);
-    printf("This is %s chip with %d CPU core(s), WiFi%s%s, ",
-            CONFIG_IDF_TARGET,
-            chip_info.cores,
-            (chip_info.features & CHIP_FEATURE_BT) ? "/BT" : "",
-            (chip_info.features & CHIP_FEATURE_BLE) ? "/BLE" : "");
-
-    printf("silicon revision %d, ", chip_info.revision);
-
-    printf("%dMB %s flash\n", spi_flash_get_chip_size() / (1024 * 1024),
-            (chip_info.features & CHIP_FEATURE_EMB_FLASH) ? "embedded" : "external");
-
-    printf("Minimum free heap size: %d bytes\n", esp_get_minimum_free_heap_size());
-    /*------------------------------------------------------------------*/
 
     I2C_mutex = xSemaphoreCreateMutex();
     sentDataToMQTT_semaphore = xSemaphoreCreateMutex();
@@ -446,8 +488,19 @@ void app_main(void)
 
     initialize_nvs();
 //    wifi_connection();
-
     init_app();
 
-    xTaskCreatePinnedToCore(sds011_task, "sds011_task", 2048 * 2, NULL, 2, &test_sds011, tskNO_AFFINITY);
+	xTaskCreatePinnedToCore(sds011_task, "sds011_task", 2048 * 2, NULL, 2, &test_sds011, tskNO_AFFINITY);
+
+	#if defined(CONFIG_USING_SHT41)
+	//sh41
+	xTaskCreatePinnedToCore(sht41_task, "sht41_task", 2048 * 2, NULL, 3, &test_sht41, tskNO_AFFINITY);
+	#elif defined(CONFIG_USING_SHT31)
+	//sh31
+	xTaskCreatePinnedToCore(sht31_task, "sht31_task", 2048 * 2, NULL, 3, &test_sht31, tskNO_AFFINITY);
+	#else
+	#endif
+	xTaskCreatePinnedToCore(ds3231_task, "ds3231_task", 2048 * 2, NULL, 4, &test_ds3231, tskNO_AFFINITY);
+
+	xTaskCreatePinnedToCore(get_data_sensor_task, "get_data_sensor_task", 2048 * 2, NULL, 5, &get_data_task, tskNO_AFFINITY);
 }

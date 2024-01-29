@@ -88,3 +88,25 @@ menu "MQTT Config menu"
         default 20000
 
 endmenu
+menu "SHT configuration"
+    choice SHT
+        prompt "Choose sht"
+        default USING_SHT41
+        help
+            Choose how to masure values from the sensor. See the main.c for
+            details.
+
+        config USING_SHT41
+            bool "SHT41"
+            help
+                In this example it uses the high level function
+                sht3x_measure() to perform one measurement in each cycle.
+
+        config USING_SHT31
+            bool "SHT31"
+            help
+                In this example it starts the measurement, waits for the
+                results and fetches the results using separate functions
+
+    endchoice
+endmenu

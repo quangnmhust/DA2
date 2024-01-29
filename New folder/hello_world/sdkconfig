@@ -156,6 +156,13 @@ CONFIG_BROKER_BIN_SIZE_TO_SEND=20000
 # end of MQTT Config menu
 
 #
+# SHT configuration
+#
+# CONFIG_USING_SHT41 is not set
+CONFIG_USING_SHT31=y
+# end of SHT configuration
+
+#
 # Compiler options
 #
 CONFIG_COMPILER_OPTIMIZATION_DEFAULT=y
