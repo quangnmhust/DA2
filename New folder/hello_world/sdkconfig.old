@@ -158,9 +158,19 @@ CONFIG_BROKER_BIN_SIZE_TO_SEND=20000
 #
 # SHT configuration
 #
-CONFIG_USING_SHT41=y
-# CONFIG_USING_SHT31 is not set
+# CONFIG_USING_SHT41 is not set
+CONFIG_USING_SHT31=y
 # end of SHT configuration
+
+#
+# SD SPI Example Configuration
+#
+# CONFIG_EXAMPLE_FORMAT_IF_MOUNT_FAILED is not set
+CONFIG_EXAMPLE_PIN_MOSI=15
+CONFIG_EXAMPLE_PIN_MISO=2
+CONFIG_EXAMPLE_PIN_CLK=14
+CONFIG_EXAMPLE_PIN_CS=13
+# end of SD SPI Example Configuration
 
 #
 # Compiler options

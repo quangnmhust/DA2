@@ -73,6 +73,7 @@ $<TARGET_FILE:__idf_main>
 $<TARGET_FILE:__idf_common>
 $<TARGET_FILE:__idf_i2cdev>
 $<TARGET_FILE:__idf_ds3231>
+$<TARGET_FILE:__idf_lcd_i2c>
 $<TARGET_FILE:__idf_sds011>
 $<TARGET_FILE:__idf_sht3x>
 $<TARGET_FILE:__idf_sht4x>

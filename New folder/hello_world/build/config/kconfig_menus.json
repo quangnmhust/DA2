@@ -2244,6 +2244,64 @@
     {
         "children": [
             {
+                "children": [],
+                "depends_on": null,
+                "help": "If this config item is set, format_if_mount_failed will be set to true and the card will be formatted if\nthe mount has failed.",
+                "id": "EXAMPLE_FORMAT_IF_MOUNT_FAILED",
+                "name": "EXAMPLE_FORMAT_IF_MOUNT_FAILED",
+                "range": null,
+                "title": "Format the card if mount failed",
+                "type": "bool"
+            },
+            {
+                "children": [],
+                "depends_on": null,
+                "help": null,
+                "id": "EXAMPLE_PIN_MOSI",
+                "name": "EXAMPLE_PIN_MOSI",
+                "range": null,
+                "title": "MOSI GPIO number",
+                "type": "int"
+            },
+            {
+                "children": [],
+                "depends_on": null,
+                "help": null,
+                "id": "EXAMPLE_PIN_MISO",
+                "name": "EXAMPLE_PIN_MISO",
+                "range": null,
+                "title": "MISO GPIO number",
+                "type": "int"
+            },
+            {
+                "children": [],
+                "depends_on": null,
+                "help": null,
+                "id": "EXAMPLE_PIN_CLK",
+                "name": "EXAMPLE_PIN_CLK",
+                "range": null,
+                "title": "CLK GPIO number",
+                "type": "int"
+            },
+            {
+                "children": [],
+                "depends_on": null,
+                "help": null,
+                "id": "EXAMPLE_PIN_CS",
+                "name": "EXAMPLE_PIN_CS",
+                "range": null,
+                "title": "CS GPIO number",
+                "type": "int"
+            }
+        ],
+        "depends_on": null,
+        "id": "sd-spi-example-configuration",
+        "title": "SD SPI Example Configuration",
+        "type": "menu"
+    },
+    {
+        "children": [
+            {
                 "children": [
                     {
                         "children": [],

@@ -31,9 +31,11 @@
 #include <sht3x.h>
 #include "sds011.h"
 #include "ds3231.h"
+#include "lcd_i2c.h"
+#include "sdcard.h"
 
-#define PRINTF_PERIOD 26000
-#define GET_DATA_PERIOD 25000
+#define PRINTF_PERIOD 10100
+#define GET_DATA_PERIOD 10000
 #define SENSOR_SLEEP_PERIOD 600000
 
 #define WIFI_TAG        "Esp_Wifi"
@@ -58,9 +60,12 @@
 
 TaskHandle_t test_sht41 = NULL;
 TaskHandle_t test_sht31 = NULL;
+TaskHandle_t test_lcd = NULL;
 TaskHandle_t test_ds3231 = NULL;
+TaskHandle_t count_ds3231 = NULL;
 TaskHandle_t test_sds011 = NULL;
 TaskHandle_t get_data_task = NULL;
+TaskHandle_t test_sdcard = NULL;
 TaskHandle_t control_task = NULL;
 TaskHandle_t send_data_mqtt_task = NULL;
 
@@ -86,7 +91,10 @@ struct tm init_time = {
 
 volatile uint32_t count_restart = 0;
 volatile data_type data;
-
+volatile data_type count;
+volatile char buff[126];
+volatile char buff_sd[126];
+volatile char name_file[50];
 
 //const char *Data_MQTT_String = "{\n\t\"Time_real_Date\":%s,\n\t\"temperature\":%.2f,\n\t\"humidity\":%.2f,\n\t\"PM2_5\":%.2f,\n\t\"PM10\":%.2f\n}";
 
@@ -280,6 +288,34 @@ void wifi_connection()
     esp_wifi_connect();
 }
 
+void sdcard_task(void *arg){
+		esp_err_t err_init = sd_card_int();
+		if (name_file == NULL){
+			sprintf(name_file, "hello.txt");
+		}
+		strcpy(buff_sd, buff);
+		strcat(buff_sd, "\n");
+		printf("buff_sd:%s", buff_sd);
+
+		esp_err_t err_write = sd_write_file(name_file, buff_sd);
+		if (err_write != ESP_OK){
+			ESP_LOGI(__func__, "Save data error");
+		} else {
+			ESP_LOGI(__func__, "Save data success");
+		}
+
+		if (err_init == ESP_OK){
+			sd_deinitialize();
+			spi_bus_free(host.slot);
+		}
+		while (1)
+		{
+
+			vTaskDelay(50 / portTICK_PERIOD_MS);
+			vTaskDelete(NULL);
+		}
+}
+
 void get_data_sensor_task(void *arg){
 	printf("data\n");
 	data_type temp = {};
@@ -291,32 +327,38 @@ void get_data_sensor_task(void *arg){
 	while(1){
 		vTaskDelay(PRINTF_PERIOD/portTICK_RATE_MS);
 
-//		temp.time_year = data.time_year;
-//		temp.time_month = data.time_month;
-//		temp.time_day = data.time_day;
-//		temp.time_hour = data.time_hour;
-//		temp.time_min = data.time_min;
-//		temp.time_sec = data.time_sec;
+		temp.time_year = data.time_year;
+		temp.time_month = data.time_month;
+		temp.time_day = data.time_day;
+		temp.time_hour = data.time_hour;
+		temp.time_min = data.time_min;
+		temp.time_sec = data.time_sec;
 
 		temp.temp = data.temp;
 		temp.humi = data.humi;
 		temp.PM2_5 = data.PM2_5;
 		temp.PM10 = data.PM10;
 
-		ESP_LOGI(__func__,"Data Sensor: %.2f °C, %.2f %%", temp.temp, temp.humi);
+		ESP_LOGI(__func__, "%02d/%02d/%02d %02d:%02d:%02d", temp.time_year, temp.time_month, temp.time_day, temp.time_hour, temp.time_min, temp.time_sec);
+		ESP_LOGI(__func__,"Data Sensor: %.2f °C, %.2f %% PM2.5: %.2f PM10: %.2f", temp.temp, temp.humi,  temp.PM2_5, temp.PM10);
 
-//		xQueueSendToBack(dataSensor_queue, (void *)&temp, 1000/portTICK_RATE_MS);
-//		ESP_LOGI(__func__, "Data waiting to read %d, Available space %d", uxQueueMessagesWaiting(dataSensor_queue), uxQueueSpacesAvailable(dataSensor_queue));
-//
-//
-//		if(xQueueReceive(dataSensor_queue, &result, 1000/portTICK_PERIOD_MS) == pdPASS){
+		sprintf(buff, "%02d/%02d/%02d %02d:%02d:%02d,%.2f,%.2f,%.2f,%.2f",
+				temp.time_year,
+				temp.time_month,
+				temp.time_day,
+				temp.time_hour,
+				temp.time_min,
+				temp.time_sec,
+				temp.temp,
+				temp.humi,
+				temp.PM2_5,
+				temp.PM10);
 
-			/* lay data hien thi LCD */
+		xTaskCreatePinnedToCore(sdcard_task, "sdcard_task", 2048 * 2, NULL, 5, &test_sdcard, tskNO_AFFINITY);
 
-			xQueueSendToBack(data_mqtt_queue, (void *)&temp, 1000/portMAX_DELAY);
-			ESP_LOGI(__func__, "MQTT data waiting to read %d, Available space %d", uxQueueMessagesWaiting(data_mqtt_queue), uxQueueSpacesAvailable(data_mqtt_queue));
-//		}
-			vTaskDelayUntil(&xLastWakeTime, SENSOR_SLEEP_PERIOD/portTICK_RATE_MS);
+		xQueueSendToBack(data_mqtt_queue, (void *)&temp, 1000/portMAX_DELAY);
+		ESP_LOGI(__func__, "MQTT data waiting to read %d, Available space %d", uxQueueMessagesWaiting(data_mqtt_queue), uxQueueSpacesAvailable(data_mqtt_queue));
+		vTaskDelayUntil(&xLastWakeTime, SENSOR_SLEEP_PERIOD/portTICK_RATE_MS);
 	}
 }
 
@@ -361,8 +403,8 @@ void sht31_task(void *pvParameters)
 	xLastWakeTime = xTaskGetTickCount();
 
 	while(1){
-		ESP_ERROR_CHECK(sht3x_init_desc(&dev, 0, SDA_PIN, SCL_PIN));
-		ESP_ERROR_CHECK(sht3x_init(&dev));
+//		ESP_ERROR_CHECK(sht3x_init_desc(&dev, 0, SDA_PIN, SCL_PIN));
+//		ESP_ERROR_CHECK(sht3x_init(&dev));
 
 		vTaskDelay(GET_DATA_PERIOD/portTICK_RATE_MS);
 
@@ -378,7 +420,7 @@ void sht31_task(void *pvParameters)
 
 			ESP_LOGI(__func__, "SHT31 give semaphore");
 
-			ESP_ERROR_CHECK(sht3x_free_desc(&dev));
+//			ESP_ERROR_CHECK(sht3x_free_desc(&dev));
 			xSemaphoreGive(I2C_mutex);
 		}
 		vTaskDelayUntil(&xLastWakeTime, SENSOR_SLEEP_PERIOD/portTICK_RATE_MS);
@@ -393,30 +435,57 @@ void ds3231_task(void *arg){
 	TickType_t xLastWakeTime;
 	xLastWakeTime = xTaskGetTickCount();
 	while(1){
-//		ESP_ERROR_CHECK(ds3231_init_desc(&ds3231, 0, SDA_PIN, SCL_PIN));
-
+		ESP_ERROR_CHECK(ds3231_init_desc(&ds3231, 0, SDA_PIN, SCL_PIN));
+		
 		vTaskDelay(GET_DATA_PERIOD/portTICK_RATE_MS);
 
 		if (xSemaphoreTake(I2C_mutex, portMAX_DELAY) == pdTRUE)
-		{
+		{	
 			ESP_LOGI(__func__, "DS3231 take semaphore");
-//			struct tm time;
-////			ds3231_get_time(&ds3231, &time);
-//			printf("%02d/%02d/%02d %02d:%02d:%02d\n", time.tm_year, time.tm_mon, time.tm_mday, time.tm_hour, time.tm_min, time.tm_sec);
-//			data.time_year = time.tm_year;
-//			data.time_month = time.tm_mon;
-//			data.time_day = time.tm_mday;
-//			data.time_hour = time.tm_hour;
-//			data.time_min = time.tm_min;
-//			data.time_sec = time.tm_sec;
-			ESP_LOGI(__func__, "24/00/28 22:12:55");
+			struct tm time;
+			ds3231_get_time(&ds3231, &time);
+			// printf("%02d/%02d/%02d %02d:%02d:%02d\n", time.tm_year, time.tm_mon, time.tm_mday, time.tm_hour, time.tm_min, time.tm_sec);
+			data.time_year = time.tm_year;
+			data.time_month = time.tm_mon+1;
+			data.time_day = time.tm_mday;
+			data.time_hour = time.tm_hour;
+			data.time_min = time.tm_min;
+			data.time_sec = time.tm_sec;
+			ESP_LOGI(__func__, "%02d/%02d/%02d %02d:%02d:%02d", time.tm_year, time.tm_mon, time.tm_mday, time.tm_hour, time.tm_min, time.tm_sec);
 			ESP_LOGI(__func__, "DS3231 give semaphore");
-//			ESP_ERROR_CHECK(ds3231_free_desc(&ds3231));
+			// ESP_ERROR_CHECK(ds3231_free_desc(&ds3231));
 			xSemaphoreGive(I2C_mutex);
 //			break;
 		}
-
 		vTaskDelayUntil(&xLastWakeTime, SENSOR_SLEEP_PERIOD/portTICK_RATE_MS);
+	}
+}
+
+void ds3231_count_task(void *arg){
+	printf("count\n");
+	TickType_t xLastWakeTime;
+	xLastWakeTime = xTaskGetTickCount();
+	while(1){
+		ESP_ERROR_CHECK(ds3231_init_desc(&ds3231, 0, SDA_PIN, SCL_PIN));
+
+		if (xSemaphoreTake(I2C_mutex, portMAX_DELAY) == pdTRUE)
+		{	
+			ESP_LOGI(__func__, "DS3231 count take semaphore");
+			struct tm time_c;
+			ds3231_get_time(&ds3231, &time_c);
+			// printf("%02d/%02d/%02d %02d:%02d:%02d\n", time.tm_year, time.tm_mon, time.tm_mday, time.tm_hour, time.tm_min, time.tm_sec);
+			count.time_year = time_c.tm_year;
+			count.time_month = time_c.tm_mon+1;
+			count.time_day = time_c.tm_mday;
+			count.time_hour = time_c.tm_hour;
+			count.time_min = time_c.tm_min;
+			count.time_sec = time_c.tm_sec;
+			ESP_LOGI(__func__, "%02d/%02d/%02d %02d:%02d:%02d", time_c.tm_year, time_c.tm_mon, time_c.tm_mday, time_c.tm_hour, time_c.tm_min, time_c.tm_sec);
+			ESP_LOGI(__func__, "DS3231 count give semaphore");
+			// ESP_ERROR_CHECK(ds3231_free_desc(&ds3231));
+			xSemaphoreGive(I2C_mutex);
+		}
+		vTaskDelayUntil(&xLastWakeTime, 1000/portTICK_RATE_MS);
 	}
 }
 
@@ -461,6 +530,46 @@ void sds011_task(void *pvParameters){
 	}
 }
 
+void lcd_task(void *arg){
+	printf("lcd\n");
+
+	TickType_t xLastWakeTime;
+	xLastWakeTime = xTaskGetTickCount();
+
+	char buff_data[20];
+
+	while(1){
+
+		// vTaskDelay(PRINTF_PERIOD/portTICK_RATE_MS);
+
+		if (xSemaphoreTake(I2C_mutex, portMAX_DELAY) == pdTRUE)
+		{
+			ESP_LOGI(__func__, "LCD take semaphore");
+
+			lcd_send_cmd(0x80|0x00);
+			sprintf(buff_data,"%02d/%02d/%02d %02d:%02d:%02d", count.time_year, count.time_month, count.time_day, count.time_hour, count.time_min, count.time_sec);
+			lcd_send_string(buff_data);
+
+			lcd_send_cmd(0x80|0x40);
+			sprintf(buff_data,"PM2.5/10:%.2f/%.2f", data.PM2_5,data.PM10);
+			lcd_send_string(buff_data);
+
+			lcd_send_cmd(0x80|0x14);
+			sprintf(buff_data,"Temp : %.2f", data.temp);
+			lcd_send_string(buff_data);
+
+			lcd_send_cmd(0x80|0x54);
+			sprintf(buff_data,"Humi : %.2f", data.humi);
+			lcd_send_string(buff_data);
+
+			ESP_LOGI(__func__, "LCD give semaphore");
+			ESP_LOGI(TAG, "---------------------------------\n");
+			xSemaphoreGive(I2C_mutex);
+		}
+		vTaskDelayUntil(&xLastWakeTime, 1000/portTICK_RATE_MS);
+	}
+}
+
 void init_app(){
 	ESP_ERROR_CHECK( i2cdev_init());
 	#if defined(CONFIG_USING_SHT41)
@@ -473,6 +582,14 @@ void init_app(){
 	#endif
 	memset(&ds3231, 0, sizeof(i2c_dev_t));
 	sds011_begin(SDS011_UART_PORT, SDS011_TX_GPIO, SDS011_RX_GPIO);
+
+	ESP_ERROR_CHECK(sht3x_init_desc(&dev, 0, SDA_PIN, SCL_PIN));
+	ESP_ERROR_CHECK(sht3x_init(&dev));
+
+//	ESP_ERROR_CHECK(i2c_master_init());
+	ESP_LOGI(TAG, "I2C initialized successfully");
+	lcd_init();
+	lcd_clear();
 }
 
 void app_main(void)
@@ -487,7 +604,7 @@ void app_main(void)
 	ESP_LOGI(__func__, "Create Queue success.");
 
     initialize_nvs();
-//    wifi_connection();
+   	wifi_connection();
     init_app();
 
 	xTaskCreatePinnedToCore(sds011_task, "sds011_task", 2048 * 2, NULL, 2, &test_sds011, tskNO_AFFINITY);
@@ -501,6 +618,9 @@ void app_main(void)
 	#else
 	#endif
 	xTaskCreatePinnedToCore(ds3231_task, "ds3231_task", 2048 * 2, NULL, 4, &test_ds3231, tskNO_AFFINITY);
+	
+	xTaskCreatePinnedToCore(ds3231_count_task, "ds3231_count_task", 2048 * 2, NULL, 4, &count_ds3231, tskNO_AFFINITY);
+	xTaskCreatePinnedToCore(lcd_task, "lcd_task", 2048 * 2, NULL, 5, &test_lcd, tskNO_AFFINITY);
 
 	xTaskCreatePinnedToCore(get_data_sensor_task, "get_data_sensor_task", 2048 * 2, NULL, 5, &get_data_task, tskNO_AFFINITY);
 }
