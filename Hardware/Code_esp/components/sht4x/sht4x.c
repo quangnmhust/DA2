@@ -296,10 +296,12 @@ esp_err_t sht4x_compute_values(sht4x_raw_data_t raw_data, float *temperature, fl
     CHECK_ARG(raw_data && (temperature || humidity));
 
     if (temperature)
-        *temperature = ((uint16_t)raw_data[0] << 8 | raw_data[1]) * 175.0 / 65535.0 - 45.0;
+        // *temperature = ((uint16_t)raw_data[0] << 8 | raw_data[1]) * 175.0 / 65535.0 - 45.0;
+        *temperature = ((uint16_t)raw_data[0] << 8 | raw_data[1]); //* 175.0 / 65535.0 - 45.0;
 
     if (humidity)
-        *humidity = ((uint16_t)raw_data[3] << 8 | raw_data[4]) * 125.0 / 65535.0 - 6.0;
+        // *humidity = ((uint16_t)raw_data[3] << 8 | raw_data[4]) * 125.0 / 65535.0 - 6.0;
+        *humidity = ((uint16_t)raw_data[3] << 8 | raw_data[4]); //* 125.0 / 65535.0 - 6.0;
 
     return ESP_OK;
 }

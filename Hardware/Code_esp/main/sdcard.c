@@ -65,6 +65,7 @@ esp_err_t sd_write_file(const char *nameFile, char *format,...){
     sprintf(pathFile, "%s/%s.txt", mount_point, nameFile);
 	const char *pathFile1 = MOUT_POINT"/data.txt";
 
+
     ESP_LOGI(__func__, "Opening file %s...", pathFile1);
     FILE *file = fopen(pathFile, "a+");
     if (file == NULL)

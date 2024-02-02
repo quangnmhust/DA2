@@ -35,8 +35,9 @@
 #include "sdcard.h"
 
 #define PRINTF_PERIOD 10100
+#define SEND_MQTT_PERIOD 2000
 #define GET_DATA_PERIOD 10000
-#define SENSOR_SLEEP_PERIOD 600000
+#define SENSOR_SLEEP_PERIOD 3600000
 
 #define WIFI_TAG        "Esp_Wifi"
 #define TAG_MQTT        "Esp_MQTT"
@@ -136,21 +137,25 @@ void send_data_mqtt(void *arg){
 			TickType_t xLastWakeTime;
 			xLastWakeTime = xTaskGetTickCount();
 
+			vTaskDelayUntil(&xLastWakeTime, SEND_MQTT_PERIOD/portTICK_RATE_MS);
+
 			if(uxQueueMessagesWaiting(data_mqtt_queue) != 0){
 				if (xQueueReceive(data_mqtt_queue, &MQTT_data, portMAX_DELAY) == pdPASS) {
 					ESP_LOGI(__func__, "MQTT data waiting to read %d, Available space %d", uxQueueMessagesWaiting(data_mqtt_queue), uxQueueSpacesAvailable(data_mqtt_queue));
 					ESP_LOGI(__func__,"MQTT Data: %.2f °C, %.2f %%", MQTT_data.temp, MQTT_data.humi);
 					if(xSemaphoreTake(sentDataToMQTT_semaphore, portMAX_DELAY) == pdTRUE) {
 						esp_err_t error = 0;
-						int msg_id;
+//						int msg_id;
 						WORD_ALIGNED_ATTR char mqttMessage[256];
-						sprintf(mqttMessage, "{\n\t\"Time_real_Date\":\"%02d/%02d/%02d %02d:%02d:%02d\",\n\t\"temperature\":%.2f,\n\t\"humidity\":%.2f,\n\t\"PM2_5\":%.2f,\n\t\"PM10\":%.2f\n}",
-								MQTT_data.time_year,
-								MQTT_data.time_month,
+						//sprintf(mqttMessage, "{\n\t\"Time_real_Date\":\"%02d/%02d/%02d %02d:%02d:%02d\",\n\t\"temperature\":%.2f,\n\t\"humidity\":%.2f,\n\t\"PM2_5\":%.2f,\n\t\"PM10\":%.2f\n}",
+						sprintf(mqttMessage, "{\n\t\"Time_real_Date\":\"%02d/%02d/%02d %02d:00:00\",\n\t\"temperature\":%.2f,\n\t\"humidity\":%.2f,\n\t\"PM2_5\":%.2f,\n\t\"PM10\":%.2f\n}",
 								MQTT_data.time_day,
+								MQTT_data.time_month,
+								MQTT_data.time_year,
+
 								MQTT_data.time_hour,
-								MQTT_data.time_min,
-								MQTT_data.time_sec,
+//								MQTT_data.time_min,
+//								MQTT_data.time_sec,
 								MQTT_data.temp,
 								MQTT_data.humi,
 								MQTT_data.PM2_5,
@@ -160,22 +165,28 @@ void send_data_mqtt(void *arg){
 						xSemaphoreGive(sentDataToMQTT_semaphore);
 						if (error == ESP_FAIL){
 							ESP_LOGE(__func__, "MQTT client publish message failed");
-							msg_id = esp_mqtt_client_subscribe(mqttClient_handle, (const char *)CONFIG_MQTT_TOPIC, 0);
-							ESP_LOGI(__func__, "sent subscribe unsuccessful, msg_id=%d", msg_id);
+//							msg_id = esp_mqtt_client_subscribe(mqttClient_handle, (const char *)CONFIG_MQTT_TOPIC, 0);
+//							ESP_LOGI(__func__, "sent subscribe unsuccessful, msg_id=%d", msg_id);
 
 						} else {
 							ESP_LOGI(__func__, "MQTT client publish message success");
-							msg_id = esp_mqtt_client_subscribe(mqttClient_handle, (const char *)CONFIG_MQTT_TOPIC, 0);
-							ESP_LOGI(__func__, "sent subscribe successful, msg_id=%d", msg_id);
+//							msg_id = esp_mqtt_client_subscribe(mqttClient_handle, (const char *)CONFIG_MQTT_TOPIC, 0);
+//							ESP_LOGI(__func__, "sent subscribe successful, msg_id=%d", msg_id);
+							count_restart++;
+							if(count_restart > 6) {
+								esp_restart();
+							}
+
 						}
 					}
 //					vTaskDelay(pdMS_TO_TICKS(60000));
 				}
 			}
-			else {
-				vTaskDelayUntil(&xLastWakeTime, PRINTF_PERIOD/portTICK_RATE_MS);
-			}
+//			else {
+//				vTaskDelayUntil(&xLastWakeTime, SEND_MQTT_PERIOD/portTICK_RATE_MS);
+//			}
 		}
+	vTaskDelete(NULL);
 	}
 }
 
@@ -236,7 +247,7 @@ void mqtt_app_start(void) {
     esp_mqtt_client_register_event(mqttClient_handle, ESP_EVENT_ANY_ID, mqtt_event_handler, mqttClient_handle);
     esp_mqtt_client_start(mqttClient_handle);
     esp_read_mac(MAC_address, ESP_MAC_WIFI_STA); // Get MAC address of ESP32
-    xTaskCreatePinnedToCore(send_data_mqtt, "send_data_http", 2048 * 2, NULL, 4, &send_data_mqtt_task, tskNO_AFFINITY);
+//    xTaskCreatePinnedToCore(send_data_mqtt, "send_data_http", 2048 * 2, NULL, 4, &send_data_mqtt_task, tskNO_AFFINITY);
 }
 
 //wifi
@@ -339,13 +350,15 @@ void get_data_sensor_task(void *arg){
 		temp.PM2_5 = data.PM2_5;
 		temp.PM10 = data.PM10;
 
-		ESP_LOGI(__func__, "%02d/%02d/%02d %02d:%02d:%02d", temp.time_year, temp.time_month, temp.time_day, temp.time_hour, temp.time_min, temp.time_sec);
+		ESP_LOGI(__func__, "%02d/%02d/%02d %02d:%02d:%02d", temp.time_day, temp.time_month, temp.time_year, temp.time_hour, temp.time_min, temp.time_sec);
 		ESP_LOGI(__func__,"Data Sensor: %.2f °C, %.2f %% PM2.5: %.2f PM10: %.2f", temp.temp, temp.humi,  temp.PM2_5, temp.PM10);
 
 		sprintf(buff, "%02d/%02d/%02d %02d:%02d:%02d,%.2f,%.2f,%.2f,%.2f",
-				temp.time_year,
-				temp.time_month,
 				temp.time_day,
+				temp.time_month,
+				temp.time_year,
+
+
 				temp.time_hour,
 				temp.time_min,
 				temp.time_sec,
@@ -356,8 +369,13 @@ void get_data_sensor_task(void *arg){
 
 		xTaskCreatePinnedToCore(sdcard_task, "sdcard_task", 2048 * 2, NULL, 5, &test_sdcard, tskNO_AFFINITY);
 
-		xQueueSendToBack(data_mqtt_queue, (void *)&temp, 1000/portMAX_DELAY);
-		ESP_LOGI(__func__, "MQTT data waiting to read %d, Available space %d", uxQueueMessagesWaiting(data_mqtt_queue), uxQueueSpacesAvailable(data_mqtt_queue));
+//		xQueueSendToBack(data_mqtt_queue, (void *)&temp, 1000/portMAX_DELAY);
+		if (xQueueSendToBack(data_mqtt_queue, (void *)&temp, 1000/portMAX_DELAY) == pdTRUE  ){
+			ESP_LOGI(__func__, "MQTT data waiting to read %d, Available space %d", uxQueueMessagesWaiting(data_mqtt_queue), uxQueueSpacesAvailable(data_mqtt_queue));
+			if (esp_mqtt_client_subscribe(mqttClient_handle, (const char *)CONFIG_MQTT_TOPIC, 0) != -1 ){
+				xTaskCreatePinnedToCore(send_data_mqtt, "send_data_http", 2048 * 2, NULL, 4, &send_data_mqtt_task, tskNO_AFFINITY);
+			}
+		}
 		vTaskDelayUntil(&xLastWakeTime, SENSOR_SLEEP_PERIOD/portTICK_RATE_MS);
 	}
 }
@@ -370,8 +388,8 @@ void sht41_task(void *pvParameters)
 	TickType_t xLastWakeTime;
 	xLastWakeTime = xTaskGetTickCount();
 	while(1){
-		ESP_ERROR_CHECK(sht4x_init_desc(&dev, 0, SDA_PIN, SCL_PIN));
-		ESP_ERROR_CHECK(sht4x_init(&dev));
+//		ESP_ERROR_CHECK(sht4x_init_desc(&dev, 0, SDA_PIN, SCL_PIN));
+//		ESP_ERROR_CHECK(sht4x_init(&dev));
 
 		vTaskDelay(GET_DATA_PERIOD/portTICK_RATE_MS);
 
@@ -387,10 +405,10 @@ void sht41_task(void *pvParameters)
 
 			ESP_LOGI(__func__, "SHT41 give semaphore");
 
-			ESP_ERROR_CHECK(sht4x_free_desc(&dev));
+//			ESP_ERROR_CHECK(sht4x_free_desc(&dev));
 			xSemaphoreGive(I2C_mutex);
 		}
-		vTaskDelayUntil(&xLastWakeTime, SENSOR_SLEEP_PERIOD/portTICK_RATE_MS);
+		vTaskDelayUntil(&xLastWakeTime, 10000/portTICK_RATE_MS);
 	}
 }
 #elif defined(CONFIG_USING_SHT31)
@@ -451,7 +469,7 @@ void ds3231_task(void *arg){
 			data.time_hour = time.tm_hour;
 			data.time_min = time.tm_min;
 			data.time_sec = time.tm_sec;
-			ESP_LOGI(__func__, "%02d/%02d/%02d %02d:%02d:%02d", time.tm_year, time.tm_mon, time.tm_mday, time.tm_hour, time.tm_min, time.tm_sec);
+			ESP_LOGI(__func__, "%02d/%02d/%02d %02d:%02d:%02d", time.tm_mday, time.tm_mon, time.tm_year, time.tm_hour, time.tm_min, time.tm_sec);
 			ESP_LOGI(__func__, "DS3231 give semaphore");
 			// ESP_ERROR_CHECK(ds3231_free_desc(&ds3231));
 			xSemaphoreGive(I2C_mutex);
@@ -480,7 +498,7 @@ void ds3231_count_task(void *arg){
 			count.time_hour = time_c.tm_hour;
 			count.time_min = time_c.tm_min;
 			count.time_sec = time_c.tm_sec;
-			ESP_LOGI(__func__, "%02d/%02d/%02d %02d:%02d:%02d", time_c.tm_year, time_c.tm_mon, time_c.tm_mday, time_c.tm_hour, time_c.tm_min, time_c.tm_sec);
+			ESP_LOGI(__func__, "%02d/%02d/%02d %02d:%02d:%02d", time_c.tm_mday, time_c.tm_mon, time_c.tm_year, time_c.tm_hour, time_c.tm_min, time_c.tm_sec);
 			ESP_LOGI(__func__, "DS3231 count give semaphore");
 			// ESP_ERROR_CHECK(ds3231_free_desc(&ds3231));
 			xSemaphoreGive(I2C_mutex);
@@ -547,7 +565,7 @@ void lcd_task(void *arg){
 			ESP_LOGI(__func__, "LCD take semaphore");
 
 			lcd_send_cmd(0x80|0x00);
-			sprintf(buff_data,"%02d/%02d/%02d %02d:%02d:%02d", count.time_year, count.time_month, count.time_day, count.time_hour, count.time_min, count.time_sec);
+			sprintf(buff_data,"%02d/%02d/%02d %02d:%02d:%02d", count.time_day, count.time_month, count.time_year, count.time_hour, count.time_min, count.time_sec);
 			lcd_send_string(buff_data);
 
 			lcd_send_cmd(0x80|0x40);
@@ -555,11 +573,11 @@ void lcd_task(void *arg){
 			lcd_send_string(buff_data);
 
 			lcd_send_cmd(0x80|0x14);
-			sprintf(buff_data,"Temp : %.2f", data.temp);
+			sprintf(buff_data,"Temp/Hum:%.2f %.2f", data.temp, data.humi);
 			lcd_send_string(buff_data);
 
 			lcd_send_cmd(0x80|0x54);
-			sprintf(buff_data,"Humi : %.2f", data.humi);
+			sprintf(buff_data,"Count: %d", count_restart);
 			lcd_send_string(buff_data);
 
 			ESP_LOGI(__func__, "LCD give semaphore");
@@ -574,20 +592,27 @@ void init_app(){
 	ESP_ERROR_CHECK( i2cdev_init());
 	#if defined(CONFIG_USING_SHT41)
 	//sh41
+
 	memset(&dev, 0, sizeof(sht4x_t));
+	ESP_ERROR_CHECK(sht4x_init_desc(&dev, 0, SDA_PIN, SCL_PIN));
+	ESP_LOGI(TAG, "I2C initialized successfully");
+	ESP_ERROR_CHECK(sht4x_init(&dev));
+
 	#elif defined(CONFIG_USING_SHT31)
 	//sh31
+
 	memset(&dev, 0, sizeof(sht3x_t));
+	ESP_ERROR_CHECK(sht3x_init_desc(&dev, 0, SDA_PIN, SCL_PIN));
+	ESP_LOGI(TAG, "I2C initialized successfully");
+	ESP_ERROR_CHECK(sht3x_init(&dev));
 	#else
 	#endif
+
 	memset(&ds3231, 0, sizeof(i2c_dev_t));
+
 	sds011_begin(SDS011_UART_PORT, SDS011_TX_GPIO, SDS011_RX_GPIO);
 
-	ESP_ERROR_CHECK(sht3x_init_desc(&dev, 0, SDA_PIN, SCL_PIN));
-	ESP_ERROR_CHECK(sht3x_init(&dev));
 
-//	ESP_ERROR_CHECK(i2c_master_init());
-	ESP_LOGI(TAG, "I2C initialized successfully");
 	lcd_init();
 	lcd_clear();
 }
@@ -604,10 +629,10 @@ void app_main(void)
 	ESP_LOGI(__func__, "Create Queue success.");
 
     initialize_nvs();
-   	wifi_connection();
+   	// wifi_connection();
     init_app();
 
-	xTaskCreatePinnedToCore(sds011_task, "sds011_task", 2048 * 2, NULL, 2, &test_sds011, tskNO_AFFINITY);
+	// xTaskCreatePinnedToCore(sds011_task, "sds011_task", 2048 * 2, NULL, 2, &test_sds011, tskNO_AFFINITY);
 
 	#if defined(CONFIG_USING_SHT41)
 	//sh41
@@ -617,10 +642,10 @@ void app_main(void)
 	xTaskCreatePinnedToCore(sht31_task, "sht31_task", 2048 * 2, NULL, 3, &test_sht31, tskNO_AFFINITY);
 	#else
 	#endif
-	xTaskCreatePinnedToCore(ds3231_task, "ds3231_task", 2048 * 2, NULL, 4, &test_ds3231, tskNO_AFFINITY);
+	// xTaskCreatePinnedToCore(ds3231_task, "ds3231_task", 2048 * 2, NULL, 4, &test_ds3231, tskNO_AFFINITY);
 	
-	xTaskCreatePinnedToCore(ds3231_count_task, "ds3231_count_task", 2048 * 2, NULL, 4, &count_ds3231, tskNO_AFFINITY);
-	xTaskCreatePinnedToCore(lcd_task, "lcd_task", 2048 * 2, NULL, 5, &test_lcd, tskNO_AFFINITY);
+	// xTaskCreatePinnedToCore(ds3231_count_task, "ds3231_count_task", 2048 * 2, NULL, 4, &count_ds3231, tskNO_AFFINITY);
+	// xTaskCreatePinnedToCore(lcd_task, "lcd_task", 2048 * 2, NULL, 5, &test_lcd, tskNO_AFFINITY);
 
-	xTaskCreatePinnedToCore(get_data_sensor_task, "get_data_sensor_task", 2048 * 2, NULL, 5, &get_data_task, tskNO_AFFINITY);
+	// xTaskCreatePinnedToCore(get_data_sensor_task, "get_data_sensor_task", 2048 * 2, NULL, 5, &get_data_task, tskNO_AFFINITY);
 }
