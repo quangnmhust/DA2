@@ -6,7 +6,7 @@ const modelSchema = new mongoose.Schema({
         default: Date.now(),
     },
     Time_real_Date:{
-        type:Number,
+        type:String,
         default: 0,
     },
     temperature:{
