@@ -1,0 +1,42 @@
+Remove Pin=IC2-3 From Net=DI_LLS
+Remove Pin=IC2-6 From Net=SCK_LLS
+Remove Pin=IC2-8 From Net=CS_LLS
+Remove Pin=IC2-11 From Net=MISO
+Remove Pin=IC2-14 From Net=3.3V
+Remove Pin=JP1-1 From Net=CS
+Remove Pin=JP1-2 From Net=SCK
+Remove Pin=JP1-3 From Net=MOSI
+Remove Pin=JP1-4 From Net=MISO
+Remove Pin=JP1-8 From Net=+5_SIM
+Remove Pin=JP1-9 From Net=+5_SIM
+Remove Pin=JP1-13 From Net=SDA
+Remove Pin=JP1-14 From Net=SCL
+Remove Pin=JP1-15 From Net=SQW
+Remove Pin=JP1-16 From Net=32K
+Remove Pin=P1-0 From Net=GND
+Remove Pin=P1-1 From Net=CS_LLS
+Remove Pin=P1-2 From Net=DI_LLS
+Remove Pin=P1-4 From Net=3.3V
+Remove Pin=P1-5 From Net=SCK_LLS
+Remove Pin=P1-6 From Net=GND
+Remove Pin=P1-7 From Net=DO_LLS
+Remove Pin=R1-1 From Net=SDA
+Remove Pin=R1-2 From Net=SCL
+Remove Pin=R1-3 From Net=SQW
+Remove Pin=R1-4 From Net=32K
+Remove Pin=R3-1 From Net=MOSI
+Remove Pin=R4-2 From Net=DO_LLS
+Remove Pin=R6-1 From Net=SCK
+Remove Pin=R7-2 From Net=CS
+Remove Pin=U1-1 From Net=32K
+Remove Pin=U1-3 From Net=SQW
+Change Component Footprint: Designator=JP1 Old Footprint=JP 2x8 DT New Footprint=JP 2x5 DT
+Change Component Comment: Designator=JP1 Old Comment=JP 2x8 2.54 New Comment=Comment
+Add Pin To Net: Pin=JP1-5 Old Net=+5 New Net=GND
+Add Pin To Net: Pin=JP1-7 Old Net=3.3V New Net=GND
+Add Pin To Net: Pin=JP1-8 Old Net=+5_SIM New Net=+5
+Add Pin To Net: Pin=JP1-9 Old Net=+5_SIM New Net=+5
+Change Pin Designator/Name:  Old Designator=JP1-5 Old Name=5 New Designator =2 New Name=2
+Change Pin Designator/Name:  Old Designator=JP1-12 Old Name=12 New Designator =3 New Name=3
+Change Pin Designator/Name:  Old Designator=JP1-7 Old Name=7 New Designator =1 New Name=1
+Change Pin Designator/Name:  Old Designator=JP1-11 Old Name=11 New Designator =4 New Name=4
